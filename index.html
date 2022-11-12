@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<!--
+    - A collection of useful tools.
+    The algorithms for some commands may not be the optimal approach, however
+    this is primarily for my practice and I kind of wanted a calculator.
+-->
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>RandomTools</title>
+    <style>
+        #input {
+            width: 100%;
+            height: 20px;
+            border: 0;
+            background-color: #faf7f7;
+            border-radius: 10px;
+        }
+    </style>
+    <script>
+        binaryToDecimal = b => {
+            if (new RegExp("[^01]").test(b)) {
+                out('Invalid binary. Try again.');
+                return 0;
+            }
+            else {
+                let t = 0;
+                let p = 0;
+                for (let i = b.length - 1; i >= 0; i--) {
+                    t += parseInt(b[i]) * Math.pow(2, p);
+                    p++;
+                }
+                return t;
+            }
+        }
+        out = msg => {
+            document.getElementById('output').innerHTML = '<br>' + msg + document.getElementById('output').innerHTML;
+        }
+        clear = () => {
+            document.getElementById('output').innerHTML = '';
+        }
+        gather = input => {return input.slice(1).join('')}
+        run = () => {
+            let input = document.getElementById('input').value;
+            document.getElementById('input').value = '';
+            input = input.split(' ');
+            out('<b>[Executed: ' + input[0] + ' ' + input.slice(1).join(' ') + ']</b>');
+            switch (input[0]) {
+                case '/help':
+                    out('/help - List all commands');
+                    out('/clear - Clear output history');
+                    out('/float32toint [binary] - Converts a 32-bit floating point binary (IEEE 754) to decimal integer.');
+                    out('/btd [binary] - Converts binary to decimal.');
+                    out('List of commands:');
+                    return;
+                case '/clear':
+                    clear();
+                    return;
+                case '/float32toint':
+                    let t = gather(input);
+                    let b = '1';
+                    b += t.substring(9);
+                    let exp = t.substring(1, 9);
+                    exp = binaryToDecimal(exp) - 127;
+                    // add decimal according to the exp
+                    let decimal = b.substring(exp + 1);
+                    let o = binaryToDecimal(b.substring(0, exp + 1)) + '.';
+                    // Transform the decimal to binary.
+                    let f = 0;
+                    for (let v = 0; v < decimal.length; v++) {
+                        f += parseInt(decimal[v]) * Math.pow(2, -1 * (v + 1));
+                    }
+                    f += '';
+                    f = f.substring(f.indexOf('.') + 1);
+                    o += f;
+                    if (t[0] === '1') {
+                        o = '-' + o;
+                    }
+                    out(o);
+                    return;
+                case '/btd':
+                    out(binaryToDecimal(gather(input)) + '');
+                    return;
+                default:
+                    out('Unknown command. Please try again or /help.')
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <form onsubmit="run()" action="javascript:void(0);">
+        <label for="input">Enter command:</label><br>
+        <input type="text" id="input" name="input" placeholder="/help">
+    </form>
+    <code id="output"></code>
+</body>
+
+</html>
